@@ -63,6 +63,17 @@ class EnforceProfileItem extends ListItemBase {
   /**
    * {@inheritdoc}
    */
+  protected function allowedValuesDescription() {
+    // Allowed values are provided programatically, so there is no need
+    // to provide any description for a user.
+    $description = '';
+
+    return $description;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
 
