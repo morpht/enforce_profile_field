@@ -27,6 +27,7 @@ class EnforceProfileItem extends ListItemBase {
    */
   public static function defaultStorageSettings() {
     return [
+      'form_mode' => '',
       'allowed_values_function' => 'enforce_profile_field_allowed_values',
     ] + parent::defaultStorageSettings();
   }
@@ -74,17 +75,48 @@ class EnforceProfileItem extends ListItemBase {
   /**
    * {@inheritdoc}
    */
-  public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
+  public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     $element = [];
+    $options = $this->getFormModes();
 
-    $element['test'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Test'),
-      '#default_value' => 'Test text.',
-      '#required' => FALSE,
+    $element['form_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('User\'s form mode'),
+      '#options' => $options,
+      '#default_value' => $this->getSetting('form_mode'),
+      '#required' => TRUE,
     ];
 
     return $element;
+  }
+
+  /**
+   * Get form modes by id.
+   *
+   * @param string $entity_type_id
+   *   Entity type id.
+   *
+   * @return array
+   *   An array of entity type's from modes by id.
+   */
+  private function getFormModes($entity_type_id = 'user') {
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository */
+    $entity_display_repository = \Drupal::service('entity_display.repository');
+    // Get form modes of the user entity type.
+    $form_modes = $entity_display_repository->getFormModes($entity_type_id);
+
+    // Init options variable.
+    $modes_by_id = [];
+
+    // Extract key/value pairs.
+    foreach ($form_modes as $mode) {
+      $id = $mode['id'];
+      $label = $mode['label'];
+
+      $modes_by_id[$id] = $label;
+    }
+
+    return $modes_by_id;
   }
 
 }
