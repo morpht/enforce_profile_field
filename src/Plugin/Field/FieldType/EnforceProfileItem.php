@@ -111,9 +111,13 @@ class EnforceProfileItem extends ListItemBase {
     // Extract key/value pairs.
     foreach ($form_modes as $mode) {
       $id = $mode['id'];
+      $target_entity_type = $mode['targetEntityType'];
       $label = $mode['label'];
 
-      $modes_by_id[$id] = $label;
+      // Prepare unique key.
+      $key = $target_entity_type . '.' . $id;
+
+      $modes_by_id[$key] = $label;
     }
 
     return $modes_by_id;
