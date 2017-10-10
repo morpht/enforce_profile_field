@@ -54,14 +54,20 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  * @see options_test_dynamic_values_callback()
  */
 function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $definition, FieldableEntityInterface $entity = NULL, &$cacheable = TRUE) {
-  // Init values variable.
+  // Init variables.
   $values = [];
-
   $form_mode = $definition->getSetting('form_mode');
 
-  // $field_definitions = $entity->getFieldDefinitions();
+  if (!empty($form_mode)) {
+    $entity_form_dispaly = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->load($form_mode);
+    if (!empty($entity_form_dispaly)) {
+      foreach ($entity_form_dispaly->content as $field) {
 
-  //$entity->getSetting('form_mode');
+      }
+    }
+  }
 
   return $values;
 }
