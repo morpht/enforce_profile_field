@@ -11,7 +11,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 
 /**
- * Provide the allowed values for a 'enforce_profile_fiel' field.
+ * Provide the allowed values for a 'enforce_profile_field' field.
  *
  * Callback for options_allowed_values().
  *
@@ -58,13 +58,31 @@ function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $d
   $values = [];
   $form_mode = $definition->getSetting('form_mode');
 
+  // Form mode must be selected.
   if (!empty($form_mode)) {
-    $entity_form_dispaly = \Drupal::entityTypeManager()
+     // Get the selected entity form display.
+    $entity_form_display = \Drupal::entityTypeManager()
       ->getStorage('entity_form_display')
       ->load($form_mode);
-    if (!empty($entity_form_dispaly)) {
-      foreach ($entity_form_dispaly->content as $field) {
 
+    // Get all user fields definitions.
+    $user_fields_definition = \Drupal::service('entity_field.manager')
+      ->getFieldDefinitions('user', 'user');
+
+    // The form display must still exists.
+    if (!empty($entity_form_display)) {
+      $fields = $entity_form_display->get('content');
+
+      // Get all fields <key,value> pairs.
+      foreach ($fields as $machine_name => $field_settings) {
+        // Process only standard fields.
+        if (isset($user_fields_definition[$machine_name])) {
+          /** @var \Drupal\Core\Field\FieldDefinitionInterface $field */
+          $field = $user_fields_definition[$machine_name];
+          $field_label = $field->getLabel();
+
+          $values[$machine_name] = $field_label;
+        }
       }
     }
   }
