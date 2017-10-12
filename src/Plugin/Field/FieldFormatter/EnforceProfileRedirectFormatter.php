@@ -76,7 +76,9 @@ class EnforceProfileRedirectFormatter extends FormatterBase {
             ->toString();
 
           // TODO: Look for a better way how to get an entity form display url.
-          $url = $path . '/' . $mode;
+          $entity_url = $entity_item->getEntity()->toUrl()->toString();
+          $options = ['query' => ['destination' => $entity_url]];
+          $url = Url::fromUserInput($path . '/' . $mode, $options)->toString();
 
           // Inform user about missing fields that needs to be filled in in order
           // to access the page.
