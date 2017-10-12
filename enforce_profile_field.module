@@ -61,13 +61,13 @@ function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $d
   // Form mode must be selected.
   if (!empty($form_mode)) {
      // Get the selected entity form display.
+    /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $entity_form_display */
     $entity_form_display = \Drupal::entityTypeManager()
       ->getStorage('entity_form_display')
       ->load($form_mode);
 
-    // Get all user fields definitions.
-    $user_fields_definition = \Drupal::service('entity_field.manager')
-      ->getFieldDefinitions('user', 'user');
+    // Get fields definitions.
+    $fields_definition = $entity_form_display->get('fieldDefinitions');
 
     // The form display must still exists.
     if (!empty($entity_form_display)) {
@@ -76,9 +76,9 @@ function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $d
       // Get all fields <key,value> pairs.
       foreach ($fields as $machine_name => $field_settings) {
         // Process only standard fields.
-        if (isset($user_fields_definition[$machine_name])) {
+        if (isset($fields_definition[$machine_name])) {
           /** @var \Drupal\Core\Field\FieldDefinitionInterface $field */
-          $field = $user_fields_definition[$machine_name];
+          $field = $fields_definition[$machine_name];
           $field_label = $field->getLabel();
 
           $values[$machine_name] = $field_label;
