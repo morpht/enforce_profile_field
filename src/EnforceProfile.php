@@ -6,7 +6,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Url;
 
 /**
- * Class EnforceProfile
+ * Class EnforceProfile.
  *
  * @package Drupal\enforce_profile_field
  */
@@ -22,7 +22,7 @@ class EnforceProfile {
   /**
    * Constructs an EnforceProfile object.
    *
-   * @param $form_mode_id string
+   * @param string $form_mode
    *   A form mode identifier.
    */
   public function __construct($form_mode) {
@@ -35,7 +35,7 @@ class EnforceProfile {
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   List of required field items.
    *
-   * @return boolean
+   * @return bool
    *   Returns a TRUE if all required fields are filled in, FALSE otherwise.
    */
   public function validate(FieldItemListInterface $items) {
@@ -72,7 +72,7 @@ class EnforceProfile {
   /**
    * Get from mode url.
    *
-   * @param strin $destination
+   * @param string $destination
    *   Destination query of the url.
    */
   public function getFormModeUrl($destination = '') {

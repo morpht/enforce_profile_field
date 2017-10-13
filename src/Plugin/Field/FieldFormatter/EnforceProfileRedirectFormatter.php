@@ -78,8 +78,9 @@ class EnforceProfileRedirectFormatter extends FormatterBase {
   private function redirect(FieldItemListInterface $items) {
     // Inform user about missing fields that needs to be filled in in order
     // to access the page.
-    // TODO: Find out a way how to preserve/display the message after the redirect.
-    drupal_set_message(t('You have been redirected because...'), 'status', TRUE);
+    // TODO: Find out a way how to preserve/display the message after the
+    // redirect.
+    drupal_set_message($this->t('You have been redirected because...'), 'status', TRUE);
 
     // Get form mode path.
     $destination = $items->getEntity()->toUrl()->toString();

@@ -31,7 +31,7 @@ class EnforceProfileItem extends ListItemBase {
       'allowed_values_function' => 'enforce_profile_field_allowed_values',
     ] + parent::defaultStorageSettings();
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -81,7 +81,7 @@ class EnforceProfileItem extends ListItemBase {
 
     $element['form_mode'] = [
       '#type' => 'select',
-      '#title' => $this->t('User\'s form mode'),
+      '#title' => $this->t("User's form mode"),
       '#options' => $options,
       '#default_value' => $this->getSetting('form_mode'),
       '#required' => TRUE,
