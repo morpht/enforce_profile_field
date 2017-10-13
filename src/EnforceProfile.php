@@ -3,6 +3,7 @@
 namespace Drupal\enforce_profile_field;
 
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Url;
 
 /**
  * Class EnforceProfile
@@ -24,7 +25,7 @@ class EnforceProfile {
    * @param $form_mode_id string
    *   A form mode identifier.
    */
-  public function __contruct($form_mode) {
+  public function __construct($form_mode) {
     $this->formMode = $form_mode;
   }
 
@@ -51,8 +52,8 @@ class EnforceProfile {
       $machine_name = $value['value'];
 
       // Proceed only if the field exists.
-      $field_exists = isset($user_account->getFieldDefinition($machine_name));
-      if ($field_exists) {
+      $field_definition = $user_account->getFieldDefinition($machine_name);
+      if (isset($field_definition)) {
         // Get user field item.
         $field = $user_account->get($machine_name);
 

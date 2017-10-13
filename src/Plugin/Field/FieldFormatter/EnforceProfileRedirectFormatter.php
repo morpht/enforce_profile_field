@@ -57,8 +57,6 @@ class EnforceProfileRedirectFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
-    $this->test
-
     // Process all entity items.
     /** @var \Drupal\Core\Field\FieldItemListInterface $entity_items */
     foreach ($entities_items as $entity_items) {
