@@ -5,8 +5,11 @@
  * Enforce Profile Field module.
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provide the allowed values for a 'enforce_profile_field' field.
@@ -54,7 +57,11 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $definition, FieldableEntityInterface $entity = NULL, &$cacheable = TRUE) {
   // Init variables.
   $values = [];
-  $form_mode = $definition->getSetting('form_mode');
+
+  // Get form mode settings from field definition.
+  $field_name = $definition->getName();
+  $field_definition = $entity->getFieldDefinition($field_name);
+  $form_mode = $field_definition->getSetting('form_mode');
 
   // Form mode must be selected.
   if (!empty($form_mode)) {
@@ -96,4 +103,35 @@ function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $d
  */
 function enforce_profile_field_field_widget_info_alter(array &$info) {
   $info['options_select']['field_types'][] = 'enforce_profile_field';
+}
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function enforce_profile_field_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  if (!($entity instanceof FieldableEntityInterface) || !$entity->hasField('enforce_profile_field')) {
+    return;
+  }
+
+  $entity_type = $entity->getEntityTypeId();
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function enforce_profile_field_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  switch ($form_id) {
+    // Disable cardinality settings and set it as unlimited by default.
+    case 'field_storage_config_edit_form':
+      /** @var \Drupal\field\Entity\FieldConfig $field_config */
+      $field_config = $form_state->getStorage()['field_config'];
+      // Only for enforce profile field.
+      if ($field_config->getType() == 'enforce_profile_field') {
+        // Set the cardinality to be unlimited.
+        $form['cardinality_container']['cardinality']['#default_value'] = '-1';
+        // Disable editing by user.
+        $form['cardinality_container']['#disabled'] = TRUE;
+      }
+      break;
+  }
 }

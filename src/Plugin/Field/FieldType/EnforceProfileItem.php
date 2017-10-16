@@ -27,9 +27,17 @@ class EnforceProfileItem extends ListItemBase {
    */
   public static function defaultStorageSettings() {
     return [
-      'form_mode' => '',
       'allowed_values_function' => 'enforce_profile_field_allowed_values',
     ] + parent::defaultStorageSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultFieldSettings() {
+    return [
+      'form_mode' => '',
+    ] + parent::defaultFieldSettings();
   }
 
   /**
@@ -75,13 +83,14 @@ class EnforceProfileItem extends ListItemBase {
   /**
    * {@inheritdoc}
    */
-  public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
+  public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $options = $this->getFormModes();
 
     $element['form_mode'] = [
       '#type' => 'select',
       '#title' => $this->t("User's form mode"),
+      '#description' => $this->t('Select a user form mode to be utilized for additional field information extraction.'),
       '#options' => $options,
       '#default_value' => $this->getSetting('form_mode'),
       '#required' => TRUE,
