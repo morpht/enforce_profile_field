@@ -17,7 +17,6 @@ use Drupal\options\Plugin\Field\FieldType\ListItemBase;
  *   description = @Translation("An entity field enforcing additional profile data."),
  *   category = @Translation("User"),
  *   default_widget = "options_select",
- *   default_formatter = "enforce_profile_field_redirect",
  * )
  */
 class EnforceProfileItem extends ListItemBase {
