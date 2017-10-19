@@ -65,17 +65,20 @@ function enforce_profile_field_allowed_values(FieldStorageDefinitionInterface $d
 
   // Form mode must be selected.
   if (!empty($form_mode)) {
+    $entity_type_id = 'user';
+    $bundle = 'user';
+    $form_mode_id = $entity_type_id . '.' . $bundle . '.' . $form_mode;
+
     // Get the selected entity form display.
     /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $entity_form_display */
     $entity_form_display = \Drupal::entityTypeManager()
       ->getStorage('entity_form_display')
-      ->load($form_mode);
-
-    // Get fields definitions.
-    $fields_definition = $entity_form_display->get('fieldDefinitions');
+      ->load($form_mode_id);
 
     // The form display must still exists.
     if (!empty($entity_form_display)) {
+      // Get fields definitions.
+      $fields_definition = $entity_form_display->get('fieldDefinitions');
       $fields = $entity_form_display->get('content');
 
       // Get all fields <key,value> pairs.
@@ -118,6 +121,29 @@ function enforce_profile_field_get_form_mode(EntityInterface $entity, $field_nam
 }
 
 /**
+ * Get Enforce Profile field active view modes.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   An entity holding the field.
+ * @param string $field_name
+ *   A field name.
+ *
+ * @return array
+ *   An array of active view modes.
+ */
+function enforce_profile_field_get_active_view_modes(EntityInterface $entity, $field_name) {
+  $active_view_modes = '';
+
+  $field_definition = $entity->getFieldDefinition($field_name);
+  if (isset($field_definition)) {
+    $active_view_modes = $field_definition->getSetting('active_view_modes');
+  }
+
+  return $active_view_modes;
+}
+
+
+/**
  * Implements hook_field_widget_info_alter().
  *
  * Perform alterations on Field API widget types to let the Enforce profile
@@ -143,13 +169,28 @@ function enforce_profile_field_entity_view_alter(array &$build, EntityInterface 
       $type = $definition->getType();
       if ($type == 'enforce_profile_field') {
         $field_name = $definition->getName();
-        $form_mode = enforce_profile_field_get_form_mode($entity, $field_name);
+        $active_view_modes = enforce_profile_field_get_active_view_modes($entity, $field_name);
 
-        $enforce_profile = new EnforceProfile($form_mode);
+        $entity_type_id = $entity->getEntityTypeId();
+        $bundle = $entity->bundle();
+        $prefix = $entity_type_id . '.' . $bundle . '.';
 
-        // Validate required profile fields.
-        $field = $entity->get($field_name);
-        $enforce_profile->validate($field);
+        $view_mode = $display->id();
+
+        if (substr($view_mode, 0, strlen($prefix)) == $prefix) {
+          $view_mode = substr($view_mode, strlen($prefix));
+        }
+
+        // Process only active view modes.
+        if (in_array($view_mode, $active_view_modes)) {
+          $form_mode = enforce_profile_field_get_form_mode($entity, $field_name);
+
+          $enforce_profile = new EnforceProfile($form_mode);
+
+          // Validate required profile fields.
+          $field = $entity->get($field_name);
+          $enforce_profile->validate($field);
+        }
       }
     }
   }

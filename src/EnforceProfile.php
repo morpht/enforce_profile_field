@@ -187,11 +187,7 @@ class EnforceProfile {
    *   Destination query of the url.
    */
   public function getFormModeUrl($destination = '') {
-    // Get the selected entity form display.
-    /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $entity_form_display */
-    $entity_form_display = \Drupal::entityTypeManager()
-      ->getStorage('entity_form_display')
-      ->load($this->formMode);
+    $entity_form_display = $this->getFormDisplay();
 
     // Redirect the user to fill in missing fields.
     $mode = $entity_form_display->get('mode');
@@ -208,6 +204,18 @@ class EnforceProfile {
     $url = Url::fromUserInput($base_url . '/' . $mode, $options)->toString();
 
     return $url;
+  }
+
+  private function getFormDisplay($entity_type_id = 'user', $bundle = 'user') {
+    $form_mode_id = $entity_type_id . '.' . $bundle . '.' . $this->formMode;
+
+    // Get the selected entity form display.
+    /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $entity_form_display */
+    $form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->load($form_mode_id);
+
+    return $form_display;
   }
 
 }

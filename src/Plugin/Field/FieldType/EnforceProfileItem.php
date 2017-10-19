@@ -35,7 +35,10 @@ class EnforceProfileItem extends ListItemBase {
    */
   public static function defaultFieldSettings() {
     return [
+      // Form mode used as a destination for the redirect.
       'form_mode' => '',
+      // View modes that should invoke enforce profile field logic.
+      'active_view_modes' => '',
     ] + parent::defaultFieldSettings();
   }
 
@@ -84,15 +87,27 @@ class EnforceProfileItem extends ListItemBase {
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
-    $options = $this->getFormModes();
+    $form_mode_options = $this->getFormModes();
 
     $element['form_mode'] = [
       '#type' => 'select',
       '#title' => $this->t("User's form mode"),
       '#description' => $this->t('Select a user form mode to be utilized for additional field information extraction.'),
-      '#options' => $options,
+      '#options' => $form_mode_options,
       '#default_value' => $this->getSetting('form_mode'),
       '#required' => TRUE,
+    ];
+
+    $view_modes_options = $this->getViewModes();
+
+    $element['active_view_modes'] = [
+      '#type' => 'select',
+      '#title' => $this->t("Enforced view modes"),
+      '#description' => $this->t("Select view modes that require selected user's field to be filled in before allowing access to view them."),
+      '#options' => $view_modes_options,
+      '#default_value' => $this->getSetting('active_view_modes'),
+      '#multiple' => TRUE,
+      '#required' => FALSE,
     ];
 
     return $element;
@@ -107,25 +122,50 @@ class EnforceProfileItem extends ListItemBase {
    * @return array
    *   An array of entity type's from modes by id.
    */
-  private function getFormModes($entity_type_id = 'user') {
+  private function getFormModes($entity_type_id = 'user', $bundle = 'user') {
     /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository */
     $entity_display_repository = \Drupal::service('entity_display.repository');
     // Get form modes of the user entity type.
-    $form_modes = $entity_display_repository->getFormModes($entity_type_id);
+    $options = $entity_display_repository->getFormModeOptionsByBundle($entity_type_id, $bundle);
 
     // Init options variable.
     $modes_by_id = [];
 
     // Extract key/value pairs.
-    foreach ($form_modes as $mode) {
-      $id = $mode['id'];
-      $target_entity_type = $mode['targetEntityType'];
-      $label = $mode['label'];
+    foreach ($options as $key => $label) {
+      // Add in only valid options.
+      if (is_string($key) && is_string($label)) {
+        $modes_by_id[$key] = $label;
+      }
+    }
 
-      // Prepare unique key.
-      $key = $target_entity_type . '.' . $id;
+    return $modes_by_id;
+  }
 
-      $modes_by_id[$key] = $label;
+  /**
+   * Get view modes by id.
+   *
+   * @return array
+   *   An array of entity type's view modes by id.
+   */
+  private function getViewModes() {
+    $entity_type_id = $this->getEntity()->getEntityTypeId();
+    $entity_bundle = $this->getEntity()->bundle();
+
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository */
+    $entity_display_repository = \Drupal::service('entity_display.repository');
+    // Get active view modes.
+    $options = $entity_display_repository->getViewModeOptionsByBundle($entity_type_id, $entity_bundle);
+
+    // Init options variable.
+    $modes_by_id = [];
+
+    // Extract key/value pairs.
+    foreach ($options as $key => $label) {
+      // Add in only valid options.
+      if (is_string($key) && is_string($label)) {
+        $modes_by_id[$key] = $label;
+      }
     }
 
     return $modes_by_id;
