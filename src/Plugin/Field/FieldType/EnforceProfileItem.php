@@ -117,7 +117,9 @@ class EnforceProfileItem extends ListItemBase {
    * Get form modes by id.
    *
    * @param string $entity_type_id
-   *   Entity type id.
+   *   An entity type id.
+   * @param string $bundle
+   *   A bundle machine name.
    *
    * @return array
    *   An array of entity type's from modes by id.

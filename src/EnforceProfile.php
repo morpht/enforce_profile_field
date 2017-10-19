@@ -181,10 +181,13 @@ class EnforceProfile {
   }
 
   /**
-   * Get from mode url.
+   * Get form mode url.
    *
    * @param string $destination
    *   Destination query of the url.
+   *
+   * @return string
+   *   Form mode url.
    */
   public function getFormModeUrl($destination = '') {
     $entity_form_display = $this->getFormDisplay();
@@ -206,6 +209,17 @@ class EnforceProfile {
     return $url;
   }
 
+  /**
+   * Get form display.
+   *
+   * @param string $entity_type_id
+   *   An entity type id.
+   * @param string $bundle
+   *   A bundle machine name.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   A form display.
+   */
   private function getFormDisplay($entity_type_id = 'user', $bundle = 'user') {
     $form_mode_id = $entity_type_id . '.' . $bundle . '.' . $this->formMode;
 

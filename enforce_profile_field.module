@@ -142,7 +142,6 @@ function enforce_profile_field_get_active_view_modes(EntityInterface $entity, $f
   return $active_view_modes;
 }
 
-
 /**
  * Implements hook_field_widget_info_alter().
  *
@@ -171,15 +170,7 @@ function enforce_profile_field_entity_view_alter(array &$build, EntityInterface 
         $field_name = $definition->getName();
         $active_view_modes = enforce_profile_field_get_active_view_modes($entity, $field_name);
 
-        $entity_type_id = $entity->getEntityTypeId();
-        $bundle = $entity->bundle();
-        $prefix = $entity_type_id . '.' . $bundle . '.';
-
-        $view_mode = $display->id();
-
-        if (substr($view_mode, 0, strlen($prefix)) == $prefix) {
-          $view_mode = substr($view_mode, strlen($prefix));
-        }
+        $view_mode = enforce_profile_field_get_view_mode($entity, $display);
 
         // Process only active view modes.
         if (in_array($view_mode, $active_view_modes)) {
@@ -194,6 +185,32 @@ function enforce_profile_field_entity_view_alter(array &$build, EntityInterface 
       }
     }
   }
+}
+
+/**
+ * Get entity display view mode.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   An entity.
+ * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+ *   A display.
+ *
+ * @return int|null|string
+ *   The last part of view mode machine name.
+ */
+function enforce_profile_field_get_view_mode(EntityInterface $entity, EntityViewDisplayInterface $display) {
+  $entity_type_id = $entity->getEntityTypeId();
+  $bundle = $entity->bundle();
+  $prefix = $entity_type_id . '.' . $bundle . '.';
+
+  $view_mode = $display->id();
+
+  // Remove the prefix if it is present.
+  if (isset($view_mode) && substr($view_mode, 0, strlen($prefix)) == $prefix) {
+    $view_mode = substr($view_mode, strlen($prefix));
+  }
+
+  return $view_mode;
 }
 
 /**
